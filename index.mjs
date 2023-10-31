@@ -27,7 +27,7 @@ export const handler = function (event, context, callback) {
 
         callback(null, {
             statusCode: 200,
-            body: token ,
+            body: JSON.stringify({ token: token }) ,
             headers: {
                 "Content-Type": "application/json"
             }
