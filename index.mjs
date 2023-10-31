@@ -7,7 +7,12 @@ import jwt from 'jsonwebtoken';
 const jwtSecret = 'sua-chave-secreta-para-o-JWT';
 
 export const handler = function (event, context, callback) {
-    const cpf = event.cpf; // Suponha que você recebe o ID do usuário na entrada do evento
+
+    console.log(`event: ${JSON.stringify(event)}`);
+    console.log(`context: ${JSON.stringify(context)}`);
+
+    const payload = JSON.parse(event.body);
+    const cpf = payload.cpf;
 
     try {
         // const params = {
