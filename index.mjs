@@ -31,13 +31,13 @@ export const handler =  function(event, context, callback) {
       });
 
     return {
-      statusCode: 200,
-      body: JSON.stringify({ token }),
+      "statusCode": 200,
+      "body": JSON.stringify({ token }),
     };
   } catch (error) {
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      "statusCode": 500,
+      "body": JSON.stringify({ error: error.message }),
     };
   }
 };
