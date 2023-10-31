@@ -35,7 +35,7 @@ export const handler = function (event, context, callback) {
     } catch (error) {
         callback(null, {
             "statusCode": 500,
-            "body": JSON.stringify({ error, error.message }),
+            "body": JSON.stringify({ error: error.message }),
             "headers": {
                 "Content-Type": "application/json"
             }
