@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 const jwtSecret = 'sua-chave-secreta-para-o-JWT';
 
 export const handler = function (event, context, callback) {
-    const userId = event.userId; // Suponha que você recebe o ID do usuário na entrada do evento
+    const cpf = event.cpf; // Suponha que você recebe o ID do usuário na entrada do evento
 
     try {
         // const params = {
@@ -23,20 +23,20 @@ export const handler = function (event, context, callback) {
         //   throw new Error('Usuário não encontrado');
         // }
 
-        const token = jwt.sign({ userId: userId }, jwtSecret, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: cpf }, jwtSecret, { expiresIn: '1h' });
 
         callback(null, {
-            "statusCode": 200,
-            "body": JSON.stringify({ token }),
-            "headers": {
+            statusCode: 200,
+            body: token ,
+            headers: {
                 "Content-Type": "application/json"
             }
         });
     } catch (error) {
         callback(null, {
-            "statusCode": 500,
-            "body": JSON.stringify({ error: error.message }),
-            "headers": {
+            statusCode: 500,
+            body: JSON.stringify({ error: error.message }),
+            headers: {
                 "Content-Type": "application/json"
             }
         });
