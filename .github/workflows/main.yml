@@ -16,6 +16,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+      - name: node install
+        run: |
+          npm install
+          ls -l
       - name: Generate Zip
         run:
           zip -r deployment.zip .
