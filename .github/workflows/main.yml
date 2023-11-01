@@ -5,21 +5,18 @@ jobs:
   deploy_zip:
     name: deploy lambda function
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
     steps:
       - name: checkout source code
         uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - name: node install
-        run: |
-          npm install
-          ls -l
+          node-version: '18.x'
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
+      - name: node debug
+        run: ls -l
       - name: Generate Zip
         run:
           zip -r deployment.zip .
