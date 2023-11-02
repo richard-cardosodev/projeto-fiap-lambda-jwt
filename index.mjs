@@ -1,16 +1,17 @@
 // const AWS = require('aws-sdk');
-// const jwt = require('jsonwebtoken');
 import jwt from 'jsonwebtoken';
-import pg from 'pg';
+import pkg from 'pg';
 
-// const dynamodb = new AWS.DynamoDB.DocumentClient();
-
+const { Pool } = pkg;
 const pool = new Pool({
     user: 'ademar',
     host: 'terraform-20231101232846266700000001.cbwfn3u5fvvq.us-east-1.rds.amazonaws.com',
     database: 'fiap_projeto',
     password: 'pagodaodamassa123',
-    port: 5432, // Porta padrão do PostgreSQL
+    port: 5432,
+    max: 1,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000
 });
 
 const jwtSecret = 'sua-chave-secreta-para-o-JWT';
@@ -26,28 +27,15 @@ export const handler = async function (event, context, callback) {
     const client = await pool.connect();
 
     try {
-        // const params = {
-        //   TableName: 'NomeDaSuaTabelaNoDynamoDB',
-        //   Key: {
-        //     userId: userId, // Substitua com a chave primária apropriada
-        //   },
-        // };
-
-        // const { Item } = await dynamodb.get(params).promise();
-
-        // if (!Item) {
-        //   throw new Error('Usuário não encontrado');
-        // }
-
-        const result = await client.query('SELECT * FROM clientes c where c.cpf = $1', [cpf]);
+        const result = await client.query('SELECT c.codigo FROM clientes c where c.cpf = $1', [cpf]);
         console.log('Resultados da consulta:', result.rows);
 
         if (result.rows.length === 0) {
             callback(null, {
                 statusCode: 404,
-                body: 'Nenhum cliente encontrado com o CPF fornecido.',
+                body: JSON.stringify({ message: 'Nenhum cliente encontrado com o CPF fornecido.' }),
                 headers: {
-                    "Content-Type": "application/text"
+                    "Content-Type": "application/json"
                 }
             });
         }
@@ -63,6 +51,7 @@ export const handler = async function (event, context, callback) {
             }
         });
     } catch (error) {
+        console.log('error: ', error);
         callback(null, {
             statusCode: 500,
             body: JSON.stringify({ error: error.message }),
