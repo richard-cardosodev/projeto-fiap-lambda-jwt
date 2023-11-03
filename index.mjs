@@ -3,15 +3,28 @@ import jwt from 'jsonwebtoken';
 import pkg from 'pg';
 
 const { Pool } = pkg;
+// const pool = new Pool({
+//     user: 'postgres',
+//     host: 'localhost',
+//     database: 'test_db',
+//     password: 'postgres-projeto-fiap-2023-Q1-64',
+//     port: 5432,
+//     max: 1,
+//     idleTimeoutMillis: 30000,
+//     connectionTimeoutMillis: 2000
+// });
 const pool = new Pool({
-    user: 'ademar',
-    host: 'terraform-20231101232846266700000001.cbwfn3u5fvvq.us-east-1.rds.amazonaws.com',
+    user: 'fiap_user',
+    host: 'projeto-fiap-db.c8jiyjlno5mw.us-east-1.rds.amazonaws.com',
     database: 'fiap_projeto',
-    password: 'pagodaodamassa123',
+    password: 'fiap_course1234',
     port: 5432,
     max: 1,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000
+    connectionTimeoutMillis: 2000,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 const jwtSecret = 'sua-chave-secreta-para-o-JWT';
@@ -27,7 +40,7 @@ export const handler = async function (event, context, callback) {
     const client = await pool.connect();
 
     try {
-        const result = await client.query('SELECT c.codigo FROM clientes c where c.cpf = $1', [cpf]);
+        const result = await client.query('SELECT * FROM clientes WHERE cpf = $1::text', [cpf]);
         console.log('Resultados da consulta:', result.rows);
 
         if (result.rows.length === 0) {
@@ -38,20 +51,19 @@ export const handler = async function (event, context, callback) {
                     "Content-Type": "application/json"
                 }
             });
+        } else {
+            const codigoCliente = result.rows[0].codigo;
+            const token = jwt.sign({ userId: codigoCliente }, jwtSecret, { expiresIn: '1h' });
+
+            callback(null, {
+                statusCode: 200,
+                body: JSON.stringify({ token: token }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
         }
-
-        const codigoCliente = result.rows[0].codigo;
-        const token = jwt.sign({ userId: codigoCliente }, jwtSecret, { expiresIn: '1h' });
-
-        callback(null, {
-            statusCode: 200,
-            body: JSON.stringify({ token: token }),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
     } catch (error) {
-        console.log('error: ', error);
         callback(null, {
             statusCode: 500,
             body: JSON.stringify({ error: error.message }),
