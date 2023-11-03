@@ -3,16 +3,7 @@ import jwt from 'jsonwebtoken';
 import pkg from 'pg';
 
 const { Pool } = pkg;
-// const pool = new Pool({
-//     user: 'postgres',
-//     host: 'localhost',
-//     database: 'test_db',
-//     password: 'postgres-projeto-fiap-2023-Q1-64',
-//     port: 5432,
-//     max: 1,
-//     idleTimeoutMillis: 30000,
-//     connectionTimeoutMillis: 2000
-// });
+
 const pool = new Pool({
     user: 'fiap_user',
     host: 'projeto-fiap-db.c8jiyjlno5mw.us-east-1.rds.amazonaws.com',
@@ -27,16 +18,11 @@ const pool = new Pool({
     }
 });
 
-const jwtSecret = 'sua-chave-secreta-para-o-JWT';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const handler = async function (event, context, callback) {
-
-    console.log(`event: ${JSON.stringify(event)}`);
-    console.log(`context: ${JSON.stringify(context)}`);
-
     const payload = JSON.parse(event.body);
     const cpf = payload.cpf;
-
     const client = await pool.connect();
 
     try {
@@ -53,7 +39,7 @@ export const handler = async function (event, context, callback) {
             });
         } else {
             const codigoCliente = result.rows[0].codigo;
-            const token = jwt.sign({ userId: codigoCliente }, jwtSecret, { expiresIn: '1h' });
+            const token = jwt.sign({ userId: codigoCliente }, JWT_SECRET, { expiresIn: '1h' });
 
             callback(null, {
                 statusCode: 200,
@@ -73,5 +59,6 @@ export const handler = async function (event, context, callback) {
         });
     } finally {
         client.release(); // Libera a conexão de volta para o pool
+        await pool.end();
     }
 };
