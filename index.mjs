@@ -29,7 +29,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 export const handler = async function (event, context, callback) {
     const payload = JSON.parse(event.body);
     const cpf = payload.cpf;
-    // const client = await pool.connect();
+    const client = await pool.connect();
 
     try {
         const result = await client.query(QUERY_BUSCA_CLIENT_ID, [cpf]);
@@ -45,7 +45,7 @@ export const handler = async function (event, context, callback) {
     } catch (error) {
         callback(null, makeResponse(500, {error: error.message}));
     } finally {
-        // client.release();
+        client.release();
         await pool.end();
     }
 };
