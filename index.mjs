@@ -38,7 +38,7 @@ export const handler = async function (event, context, callback) {
         if (result.rows.length === 0) {
             callback(null, makeResponse(404, {message: 'Nenhum cliente encontrado com o CPF fornecido.'}) );
         } else {
-            const payload = {codigo: result.rows[0].codigo, nome: result.rows[0].nome, email: result.rows[0].email};
+            const payload = {cliente: {codigo: result.rows[0].codigo, nome: result.rows[0].nome, email: result.rows[0].email}};
             const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
             callback(null, makeResponse(200, {token: token}));
         }
