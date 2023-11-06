@@ -1,5 +1,8 @@
 name: deploy to lambda
-on: [push]
+on:
+  push:
+    branches: [ "main" ]
+    
 jobs:
 
   deploy_zip:
@@ -19,3 +22,10 @@ jobs:
       - name: Generate Zip
         run:
           zip -r deployment.zip .
+      - name: Trigger Infrastructure Deploy Workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          ref: refs/heads/main
+          workflow: terraform-apply.yml
+          token: ${{ secrets.PAT }}  # Personal Access Token with repo scope
+          repo: richard-cardosodev/projeto-fiap-iac-infra
